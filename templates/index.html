@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Gallery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+</head>
+<body id="body" class="dark-mode"> <!-- Default to dark mode -->
+    <h1><i class="fas fa-images"></i> Photo Gallery</h1> <!-- Gallery icon added -->
+    
+    <label class="switch">
+        <input type="checkbox" id="modeSwitch" checked>
+        <span class="slider"></span>
+    </label>
+
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit">Upload Image</button>
+    </form>
+    
+    <div class="gallery">
+        {% if images %}
+            <div class="image-container">
+                <img id="currentImage" src="{{ url_for('static', filename='uploads/' + images[0]) }}" alt="Image">
+                <div class="navigation">
+                    <button id="prevButton" onclick="prevImage()">Previous</button>
+                    <button id="nextButton" onclick="nextImage()">Next</button>
+                </div>
+            </div>
+        {% else %}
+            <p>No images uploaded yet.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        const images = {{ images|tojson }};
+        let currentIndex = 0;
+
+        function updateImage() {
+            const currentImage = document.getElementById("currentImage");
+            currentImage.src = "/static/uploads/" + images[currentIndex];
+        }
+
+        function prevImage() {
+            currentIndex = (currentIndex > 0) ? currentIndex - 1 : images.length - 1;
+            updateImage();
+        }
+
+        function nextImage() {
+            currentIndex = (currentIndex < images.length - 1) ? currentIndex + 1 : 0;
+            updateImage();
+        }
+
+        // Toggle light/dark mode
+        function toggleMode() {
+            const body = document.body;
+            const modeSwitch = document.getElementById('modeSwitch');
+
+            if (modeSwitch.checked) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+            }
+        }
+
+        // Attach the toggle function to the switch
+        document.getElementById('modeSwitch').addEventListener('change', toggleMode);
+    </script>
+</body>
+</html>
